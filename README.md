@@ -9,6 +9,10 @@ Created by `Tanran Zheng`, `Xinru Xu`.
 # Setup
 You can install or conda enviroment using the conda_env.yaml file
 
+# Implementation
+Independent Learners with DQN, Parameter Sharing with PPO, Multi-Agents DDPG.
+All models are implemented using Pytorch.
+
 ## To run
 To train the model:
 ```
