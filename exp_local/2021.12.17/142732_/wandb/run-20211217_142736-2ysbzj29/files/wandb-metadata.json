@@ -1,0 +1,23 @@
+{
+    "os": "Windows-10-10.0.19041-SP0",
+    "python": "3.7.11",
+    "heartbeatAt": "2021-12-17T19:27:37.845066",
+    "startedAt": "2021-12-17T19:27:36.931091",
+    "docker": null,
+    "gpu": "NVIDIA GeForce RTX 3080",
+    "gpu_count": 1,
+    "cpu_count": 20,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "train.py",
+    "git": {
+        "remote": "https://github.com/zhengtr/soccerTwos_MADDPG.git",
+        "commit": "1544dce06db67e3bef942bf344a9de5bfb836d3a"
+    },
+    "email": "zhengtr@gmail.com",
+    "root": "C:/Users/zheng/Desktop/soccerTwos_MADDPG",
+    "host": "DESKTOP-TG9V423",
+    "username": "zheng",
+    "executable": "C:\\Users\\zheng\\Anaconda3\\envs\\SoccerTwos\\python.exe"
+}

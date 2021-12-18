@@ -21,7 +21,7 @@ COMMON_EVAL_FORMAT = [('episode', 'E', 'int'), ('step', 'S', 'int'),
 AGENT_TRAIN_FORMAT = {
     'dqn': [('batch_reward', 'BR', 'float'),
              ('critic_loss', 'CLOSS', 'float')],
-    'maddpg': [('batch_reward', 'BR', 'float'),
+    'ddpg': [('batch_reward', 'BR', 'float'),
              ('critic_loss', 'CLOSS', 'float')]
 }
 

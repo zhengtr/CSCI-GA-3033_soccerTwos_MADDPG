@@ -1,0 +1,2 @@
+batch_reward,critic_loss,episode,episode_reward,eps,step
+0.0,0.0018123403008026356,0.0,-0.125,0.11636363636363625,55

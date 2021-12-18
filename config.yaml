@@ -1,33 +1,46 @@
 # env
 env: 'SoccerTwos'
-model: ${model_maddpg}
+agent: ${agent_maddpg}
 work_id: 1
 work_id_ev: 2
 # train
-# num_train_steps: 300000 # 100010
-num_train_steps: 200000
-num_exploration_steps: 4000
-start_training_steps: 0
+num_train_steps: 25000000 # 100010
+num_exploration_steps: 10000
+start_training_steps: 1
 min_eps: 0.1
 seed: 1
 replay_buffer_capacity: ${num_train_steps}
 # eval
-eval_frequency: 20000
-num_eval_steps: 10000
-# eval_frequency: 20000
-# num_eval_steps: 125000
+eval_frequency: 100000
+num_eval_steps: 200000
 # misc
-log_frequency_step: 4000
+log_frequency_step: 1000
 log_save_tb: true
 device: cuda
 # global params
-batch_size: 16
+lr: 0.0001
+beta_1: 0.9
+beta_2: 0.999
+weight_decay: 0.0
+adam_eps: 0.00015
+max_grad_norm: 0.5
+batch_size: 32
 num_agents: 16
+eval_eps: 0.05
 
-model_maddpg:
-  class: maddpg.MADDPG
-  name: maddpg
-  
+#self-play
+self_play: True
+save_step: 20000
+num_windows: 10
+swap_step: 100000
+team_change: 500000
+prob_select_latest_model: 0.5
+save_frequency: 2000
+
+# agent configuration
+agent_maddpg:
+  class: agent.DDPGAgent
+  name: ddpg
   params:
     obs_shape: ??? # to be specified later
     num_actions: ??? # to be specified later
@@ -40,13 +53,13 @@ model_maddpg:
     num_agents: ${num_agents}
     critic_target_update_frequency: 100
     max_grad_norm: ${max_grad_norm}
-    replay_buffer_capacity: ${replay_buffer_capacity}
-    batch_size: ${batch_size}
-    max_grad_norm: 0.5
-    eval_eps: 0.05
 
-
-
+critic:
+  class: model.CentralizedCritic
+  params:
+    action_dim: ${agent.params.num_actions}
+    obs_dim: ${agent.params.obs_shape}
+    device: ${device}
 
 # hydra configuration
 hydra:

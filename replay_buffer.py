@@ -5,6 +5,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import random
 from collections import deque
+import utils
+
+from segment_tree import SumSegmentTree, MinSegmentTree
+
 
 class ReplayBuffer(object):
     def __init__(self, obs_shape, capacity, device):
@@ -66,6 +70,72 @@ class ReplayBuffer(object):
         idxs = self.sample_idxs(batch_size, n)
         return self.fetch(idxs, discount, n)
 
+
+class PrioritizedReplayBuffer(ReplayBuffer):
+    def __init__(self, obs_shape, capacity, alpha, device):
+        super().__init__(obs_shape, capacity, device)
+
+        assert alpha >= 0
+        self.alpha = alpha
+
+        tree_capacity = 1
+        while tree_capacity < capacity:
+            tree_capacity *= 2
+
+        self.sum_tree = SumSegmentTree(tree_capacity)
+        self.min_tree = MinSegmentTree(tree_capacity)
+        self.max_priority = 1.0
+
+    def add(self, obs, action, reward, next_obs, done):
+        super().add(obs, action, reward, next_obs, done)
+        self.sum_tree[self.idx] = self.max_priority**self.alpha
+        self.min_tree[self.idx] = self.max_priority**self.alpha
+
+    def sample_idxs(self, batch_size, n):
+        idxs = []
+        p_total = self.sum_tree.sum(0, len(self) - n - 1)
+        every_range_len = p_total / batch_size
+        for i in range(batch_size):
+            while True:
+                mass = np.random.rand() * every_range_len + i * every_range_len
+                idx = self.sum_tree.find_prefixsum_idx(mass)
+                if idx + n <= len(self):
+                    idxs.append(idx)
+                    break
+        return np.array(idxs)
+
+    def sample_multistep(self, batch_size, beta, discount, n):
+        assert n <= self.idx or self.full
+        assert beta > 0
+
+        idxs = self.sample_idxs(batch_size, n)
+
+        weights = []
+        p_min = self.min_tree.min() / self.sum_tree.sum()
+        max_weight = (p_min * len(self))**(-beta)
+
+        for idx in idxs:
+            p_sample = self.sum_tree[idx] / self.sum_tree.sum()
+            weight = (p_sample * len(self))**(-beta)
+            weights.append(weight / max_weight)
+        weights = torch.as_tensor(np.array(weights),
+                                  device=self.device).unsqueeze(dim=1)
+
+        sample = self.fetch(idxs, discount, n)
+
+        return tuple(list(sample) + [weights, idxs])
+
+    def update_priorities(self, idxs, prios):
+        assert idxs.shape[0] == prios.shape[0]
+
+        for idx, prio in zip(idxs, prios):
+            assert prio > 0
+            assert 0 <= idx < len(self)
+
+            self.sum_tree[idx] = prio**self.alpha
+            self.min_tree[idx] = prio**self.alpha
+
+            self.max_priority = max(self.max_priority, prio)
 
 class MultiAgentReplayBuffer:
     
