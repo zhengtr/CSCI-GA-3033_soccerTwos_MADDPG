@@ -1,0 +1,108 @@
+# env
+env: 'SoccerTwos'
+agent: ${agent_dqn}
+agent_ppo: ${agent_ppo}
+work_id: 1
+work_id_ev: 2
+# train
+num_train_steps: 100000 # 100010
+num_train_iters: 1
+num_exploration_steps: 5000
+start_training_steps: 1600
+min_eps: 0.1
+seed: 1
+replay_buffer_capacity: ${num_train_steps}
+prioritized_replay: true
+prioritized_replay_alpha: 0.6
+ppo: false
+#self-play
+self_play: false
+save_step: 20000
+num_windows: 10
+swap_step: 10000
+team_change: 100000
+prob_select_latest_model: 0.5
+# eval
+eval_frequency: 20000
+num_eval_steps: 10000
+# misc
+log_frequency_step: 10000
+log_save_tb: true
+device: cuda
+save_frequency: 2000
+# global params
+lr: 0.0001
+beta_1: 0.9
+beta_2: 0.999
+weight_decay: 0.0
+adam_eps: 0.00015
+max_grad_norm: 10.0
+batch_size: 32
+
+agent_ppo:
+  class: ppo.ppo.PPO
+  name: ppo
+  params:
+    env: ${env}
+    obs_shape: ??? # to be specified later
+    num_actions: ??? # to be specified later
+    num_actions_branch: ???
+    device: ${device}
+    timesteps_per_batch: 4800
+    max_timesteps_per_episode: 1600
+    n_updates_per_iteration: 5
+    lr: 0.005
+    gamma: 0.95
+    clip: 0.2
+    seed: ${seed}
+    #self-play
+    self_play: false
+    save_step: 20000
+    num_windows: 10
+    swap_step: 10000
+    team_change: 100000
+    prob_select_latest_model: 0.5
+
+# agent configuration
+agent_dqn:
+  class: dqn.DRQLAgent
+  name: dqn
+  params:
+    obs_shape: ??? # to be specified later
+    num_actions: ??? # to be specified later
+    num_actions_branch: ???
+    device: ${device}
+    critic_cfg: ${critic}
+    discount: 0.99
+    lr: ${lr}
+    beta_1: ${beta_1}
+    beta_2: ${beta_2}
+    weight_decay: ${weight_decay}
+    adam_eps: ${adam_eps}
+    max_grad_norm: ${max_grad_norm}
+    critic_tau: 0.1
+    critic_target_update_frequency: 100
+    batch_size: ${batch_size}
+    multistep_return: 10
+    eval_eps: 0.05
+    double_q: true
+    prioritized_replay_beta0: 0.4
+    prioritized_replay_beta_steps: ${num_train_steps}
+
+critic:
+  class: dqn.Critic
+  params:
+    num_actions: ${agent.params.num_actions}
+    input_dim: ${agent.params.obs_shape}
+#  hidden_dim: 512
+    dueling: true
+    device: ${device}
+
+# hydra configuration
+hydra:
+#  name: ${env}
+  run:
+    dir: ./exp_local/${now:%Y.%m.%d}/${now:%H%M%S}_${hydra.job.override_dirname}
+  sweep:
+    dir: ./exp/${now:%Y.%m.%d}/${now:%H%M%S}_${agent.name}_${experiment}
+    subdir: ${hydra.job.num}

@@ -9,10 +9,21 @@ Created by `Tanran Zheng`, `Xinru Xu`.
 # Setup
 You can install or conda enviroment using the conda_env.yaml file
 
+# Implementation
+- Independent Learners with DQN 
+- Parameter Sharing with PPO 
+- Modified version of Multi-Agents DDPG (MADDPG by Lowe et al. 2017).
+
+All models are implemented using Pytorch.
+
 ## To run
-To train the model:
+To train PPO and DQN model:
 ```
-python train.py
+python dqn_ppo/train.py
+```
+To train MADDPG model:
+```
+python maddpg/train.py
 ```
 
 ## To check the result
