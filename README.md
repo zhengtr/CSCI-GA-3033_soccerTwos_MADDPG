@@ -32,7 +32,8 @@ python maddpg/train.py
 
 
 ## Detailed report
-See `Final Report - Cooperative Multi-Agents with Reinforcement Learning.pdf`, which is written in blog style.
+See `Final Report - Cooperative Multi-Agents with Reinforcement Learning.pdf`, which is written in blog style as recommended. 
+
 Video demonstration included.
 
 
